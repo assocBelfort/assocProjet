@@ -13,14 +13,15 @@ describe User do
 	it {should respond_to(:remember_token)}
 	it {should respond_to(:admin) }
 	it {should respond_to(:authenticate) }
+	it { should respond_to(:microposts) }
 	
 	it {should be_valid }
 	it {should_not be_admin }
 
 	describe "with admin attribute set to 'true'" do
-	  before { @user.toggle!(:admin) }
+		before { @user.toggle!(:admin) }
 
-	  it { should be_admin }
+		it { should be_admin }
 	end
 
 	describe "when name is not present" do
@@ -36,9 +37,9 @@ describe User do
 		it { should_not be_valid }
 	end
 	describe "remember token" do
-	    before { @user.save }
-	    its(:remember_token) { should_not be_blank }
-	  end
+		before { @user.save }
+		its(:remember_token) { should_not be_blank }
+	end
 	describe "when email format is invalid" do
 		it "should be invalid" do
 			addresses = %w[user@foo,com user_at_foo.org example.user@foo. foo@bar_baz.com foo@bar+baz.com]
@@ -101,5 +102,27 @@ describe User do
 			it { should_not == user_for_invalid_password }
 			specify { user_for_invalid_password.should be_false }
 		end
+	end
+	describe "micropost associations" do
+
+		before { @user.save }
+		let!(:older_micropost) do 
+			FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
+		end
+		let!(:newer_micropost) do
+			FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago)
+		end
+
+		it "should have the right microposts in the right order" do
+			@user.microposts.should == [newer_micropost, older_micropost]
+		end
+		it "should destroy associated microposts" do
+			microposts = @user.microposts
+			@user.destroy
+			microposts.each do |micropost|
+				Micropost.find_by_id(micropost.id).should be_nil
+			end
+		end
+		
 	end
 end
