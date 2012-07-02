@@ -11,7 +11,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120701174359) do
+ActiveRecord::Schema.define(:version => 20120702103023) do
+
+  create_table "associations", :force => true do |t|
+    t.string   "nom"
+    t.integer  "president_id"
+    t.string   "descriptif"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
 
   create_table "events", :force => true do |t|
     t.string   "name"
@@ -38,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20120701174359) do
     t.string   "password_digest"
     t.string   "remember_token"
     t.boolean  "admin",           :default => false
+    t.integer  "assoc_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
